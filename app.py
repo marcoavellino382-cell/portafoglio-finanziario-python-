@@ -65,45 +65,44 @@ elif sezione == "2. Notizie di Mercato":
     st.title("📰 Notizie e Aggiornamenti Real-Time")
     st.write("Rimani aggiornato sulle ultime novità societarie e macroeconomiche globali.")
     
-    # Importiamo due strumenti nativi di Python per leggere i feed web senza blocchi
     import urllib.request
-    import xml.etree.ElementTree as ET
+    import json
     
-    with st.spinner("Lettura del feed notizie in corso..."):
+    # MODIFICA QUI: Incolla all'interno delle virgolette la chiave che hai preso da Finnhub
+    API_KEY = "db56gepr01qv1n8sul6gdb56gepr01qv1n8sul70"
+    
+    with st.spinner("Scaricamento ultime notizie di mercato..."):
         try:
-            # URL del feed RSS ufficiale delle Top Stories di Yahoo Finance
-            url_rss = "https://finance.yahoo.com/news/rssindex"
+            # URL per le notizie di mercato generali (categoria 'general')
+            url = f"https://finnhub.io{API_KEY}"
             
-            # Simuliamo una richiesta da un browser normale per evitare blocchi IP sul Cloud
-            req = urllib.request.Request(
-                url_rss, 
-                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
-            )
-            
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req) as response:
-                dati_xml = response.read()
+                dati_json = json.loads(response.read().decode('utf-8'))
             
-            # Analizziamo l'XML del feed RSS
-            root = ET.fromstring(dati_xml)
-            articoli = root.findall('.//item')
-            
-            if articoli:
+            if dati_json and len(dati_json) > 0:
                 st.subheader("🔥 Ultime notizie dal mercato azionario globale")
-                # Mostriamo le prime 5 notizie del feed principale
-                for item in articoli[:5]:
-                    titolo = item.find('title').text
-                    link = item.find('link').text
-                    data_pubb = item.find('pubDate').text if item.find('pubDate') is not None else "Data non disponibile"
+                # Mostriamo le prime 5 notizie
+                for news in dati_json[:5]:
+                    titolo = news.get('headline', 'Nessun titolo')
+                    sommario = news.get('summary', '')
+                    link = news.get('url', '#')
+                    fonte = news.get('source', 'Finnhub')
+                    
+                    # Converte il timestamp Unix in data leggibile
+                    data_unix = news.get('datetime', 0)
+                    data_pubb = pd.to_datetime(data_unix, unit='s').strftime('%d/%m/%Y %H:%M')
                     
                     with st.expander(titolo):
-                        st.write(f"**Data:** {data_pubb}")
+                        st.write(f"**Fonte:** {fonte} | **Data:** {data_pubb}")
+                        if sommario:
+                            st.write(f"*{sommario}*")
                         st.write(f"[Clicca qui per leggere l'articolo completo]({link})")
             else:
-                st.info("Nessuna notizia disponibile nel feed in questo momento. Riprova tra poco.")
+                st.info("Nessuna notizia disponibile in questo momento.")
                 
         except Exception as e:
-            # Paracadute estremo se anche il feed principale ha problemi di rete
-            st.error("Servizio notizie momentaneamente non disponibile a causa di restrizioni del server. I grafici e il simulatore rimangono attivi al 100%.")
+            st.error("Servizio notizie momentaneamente non disponibile. I grafici e il simulatore rimangono attivi al 100%.")
 
 # ====================================================
 # PAGINA 3: VALUTAZIONE INVESTIMENTO (FATTIBILITÀ)
