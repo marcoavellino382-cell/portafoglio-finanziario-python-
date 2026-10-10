@@ -249,15 +249,15 @@ elif sezione == "4. Bilanciamento Portafoglio":
             fig_target.update_layout(title_text="Composizione Obiettivo (Target)", template="plotly_dark", height=350)
             st.plotly_chart(fig_target, use_container_width=True)
             
-        # 5. Tabella dei Risultati Operativi con indicazioni Compra/Vendi
+                # 5. Tabella dei Risultati Operativi con indicazioni Compra/Vendi
         st.subheader("📋 Azioni Correttive per il Ribilanciamento")
         st.write("Segui queste indicazioni per riallineare il tuo portafoglio agli obiettivi strategici:")
         
         for index, row in df_ribilanciamento.iterrows():
             operazione = row["Ribilanciamento"]
             if operazione > 0:
-                st.info(f"➕ **{row['Categoria']}**: Devi **COMPRARE** €{operazione:,.2f} per raggiungere il target del {row['PercentualeTarget']}%")
+                st.info(f"➕ **{row['Categoria']}**: Devi **COMPRARE** €{operazione:,.2f} per raggiungere il target del {row['Percentuale Target']}%")
             elif operazione < 0:
-                st.warning(f"➖ **{row['Categoria']}**: Devi **VENDERE** €{abs(operazione):,.2f} per scendere al target del {row['PercentualeTarget']}%")
+                st.warning(f"➖ **{row['Categoria']}**: Devi **VENDERE** €{abs(operazione):,.2f} per scendere al target del {row['Percentuale Target']}%")
             else:
-                st.success(f"🎯 **{row['Categoria']}**: Perfettamente bilanciato al {row['PercentualeTarget']}%")
+                st.success(f"🎯 **{row['Categoria']}**: Perfettamente bilanciato al {row['Percentuale Target']}%")
