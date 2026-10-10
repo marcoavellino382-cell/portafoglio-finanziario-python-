@@ -35,7 +35,7 @@ if sezione == "1. Titoli e Grafici":
                 dati_titolo = yf.Ticker(ticker)
                 df = dati_titolo.history(period=periodo)
                 
-                                if not df.empty and len(df) > 1:
+ if not df.empty and len(df) > 1:
                     # Calcolo delle metriche principali da mostrare nei box
                     prezzo_corrente = df['Close'].iloc[-1]
                     prezzo_precedente = df['Close'].iloc[-2]
