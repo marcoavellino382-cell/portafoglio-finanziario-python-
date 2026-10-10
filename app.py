@@ -35,17 +35,25 @@ if sezione == "1. Titoli e Grafici":
                 dati_titolo = yf.Ticker(ticker)
                 df = dati_titolo.history(period=periodo)
                 
-                if not df.empty and len(df) > 1:
+                                if not df.empty and len(df) > 1:
                     # Calcolo delle metriche principali da mostrare nei box
                     prezzo_corrente = df['Close'].iloc[-1]
                     prezzo_precedente = df['Close'].iloc[-2]
                     variazione_percentuale = ((prezzo_corrente - prezzo_precedente) / prezzo_precedente) * 100
                     
-                    # Mostra i box con i dati (KPI)
+                    # LOGICA VALUTA DINAMICA: controlla se il titolo è quotato in Euro o Dollari
+                    try:
+                        valuta_nativa = dati_titolo.info.get('currency', 'USD')
+                    except:
+                        valuta_nativa = 'USD'
+                        
+                    simbolo = "€" if valuta_nativa == "EUR" else "$" if valuta_nativa == "USD" else f"{valuta_nativa} "
+                    
+                    # Mostra i box con la valuta dinamica corretta
                     col1, col2, col3 = st.columns(3)
-                    col1.metric("Prezzo Attuale", f"${prezzo_corrente:.2f}", f"{variazione_percentuale:.2f}%")
-                    col2.metric("Massimo nel Periodo", f"${df['High'].max():.2f}")
-                    col3.metric("Minimo nel Periodo", f"${df['Low'].min():.2f}")
+                    col1.metric("Prezzo Attuale", f"{simbolo}{prezzo_corrente:.2f}", f"{variazione_percentuale:.2f}%")
+                    col2.metric("Massimo nel Periodo", f"{simbolo}{df['High'].max():.2f}")
+                    col3.metric("Minimo nel Periodo", f"{simbolo}{df['Low'].min():.2f}")
                     
                     # Creazione del grafico interattivo a candele (Candlestick) con Plotly
                     grafico = go.Figure(data=[go.Candlestick(
