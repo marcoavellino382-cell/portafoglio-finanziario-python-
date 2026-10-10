@@ -73,20 +73,33 @@ elif sezione == "2. Notizie di Mercato":
                 dati_titolo = yf.Ticker(ticker_news)
                 lista_notizie = dati_titolo.news
                 
-                if lista_notizie:
+                # Se yfinance restituisce notizie valide, mostriamo quelle del ticker
+                if lista_notizie and len(lista_notizie) > 0:
                     st.subheader(f"Ultime notizie rilevanti per {ticker_news}")
-                    # Ciclo per mostrare le prime 5 notizie trovate
                     for news in lista_notizie[:5]:
                         with st.expander(news['title']):
                             st.write(f"**Fonte:** {news.get('publisher', 'N/D')}")
-                            # Converte il tempo Unix in data leggibile
                             data_pubb = pd.to_datetime(news.get('providerPublishTime', 0), unit='s')
                             st.write(f"**Data di pubblicazione:** {data_pubb.strftime('%d/%m/%Y %H:%M')}")
                             st.write(f"[Clicca qui per leggere l'articolo completo]({news['link']})")
+                
+                # FALLBACK: Se yfinance fallisce o è bloccato sul cloud, carichiamo le notizie generali di mercato
                 else:
-                    st.info("Nessuna notizia recente trovata per questo titolo.")
+                    st.warning(f"⚠️ Limitazione temporanea sui server per il ticker {ticker_news}. Mostro le ultime notizie Generali di Mercato:")
+                    dati_generali = yf.Ticker("SPY") # Usiamo l'indice S&P 500 come paracadute generale
+                    news_generali = dati_generali.news
+                    
+                    if news_generali:
+                        for news in news_generali[:5]:
+                            with st.expander(news['title']):
+                                st.write(f"**Fonte:** {news.get('publisher', 'N/D')}")
+                                data_pubb = pd.to_datetime(news.get('providerPublishTime', 0), unit='s')
+                                st.write(f"**Data di pubblicazione:** {data_pubb.strftime('%d/%m/%Y %H:%M')}")
+                                st.write(f"[Clicca qui per leggere l'articolo completo]({news['link']})")
+                    else:
+                        st.info("Nessuna notizia disponibile al momento. Riprova tra pochi minuti.")
             except Exception as e:
-                st.error("Impossibile recuperare le notizie per questo ticker al momento.")
+                st.error("Impossibile recuperare le notizie al momento a causa di restrizioni del server.")
 
 # ====================================================
 # PAGINA 3: VALUTAZIONE INVESTIMENTO (FATTIBILITÀ)
