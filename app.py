@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 # Aggiunge il logo in alto a sinistra sopra il menu laterale di navigazione
-st.logo("logo.png")
+st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
