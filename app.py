@@ -16,12 +16,12 @@ st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
-sezione = st.sidebar.radio("Vai alla pagina:", ["1. Titoli e Grafici", "2. Notizie di Mercato", "3. Simulatore Investimenti", "4. Bilanciamento Portafoglio"])
+sezione = st.sidebar.radio("Vai alla pagina:", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio"])
 
 # ====================================================
 # PAGINA 1: TITOLI FINANZIARI E GRAFICI
 # ====================================================
-if sezione == "1. Titoli e Grafici":
+if sezione == "Titoli e Grafici":
     st.title("📊 Analisi Titoli e Grafici Interattivi")
     st.write("Inserisci il codice di un titolo azionario o crypto per visualizzare i dati in tempo reale.")
     
@@ -72,7 +72,7 @@ if sezione == "1. Titoli e Grafici":
 # ====================================================
 # PAGINA 2: NOTIZIE E AGGIORNAMENTI
 # ====================================================
-elif sezione == "2. Notizie di Mercato":
+elif sezione == "Notizie di Mercato":
     st.title("📰 Notizie e Aggiornamenti Real-Time")
     st.write("Rimani aggiornato sulle ultime novità macroeconomiche e finanziarie globali.")
     
@@ -117,7 +117,7 @@ elif sezione == "2. Notizie di Mercato":
 # ====================================================
 # PAGINA 3: VALUTAZIONE INVESTIMENTO (FATTIBILITÀ)
 # ====================================================
-elif sezione == "3. Simulatore Investimenti":
+elif sezione == "Simulatore Investimenti":
     st.title("💰 Valutazione e Fattibilità dell'Investimento")
     st.write("Calcola l'impatto e il valore creato nel tempo grazie alla forza dell'interesse composto.")
     
@@ -173,7 +173,7 @@ elif sezione == "3. Simulatore Investimenti":
 # ====================================================
 # PAGINA 4: ASSET ALLOCATION E RIBILANCIAMENTO
 # ====================================================
-elif sezione == "4. Bilanciamento Portafoglio":
+elif sezione == "Bilanciamento Portafoglio":
     st.title("⚖️ Asset Allocation & Ribilanciamento Strategico")
     st.write("Imposta i tuoi obiettivi di portafoglio e calcola esattamente come ribilanciare il capitale attuale.")
     
