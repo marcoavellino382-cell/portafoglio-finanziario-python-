@@ -16,7 +16,7 @@ st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
-sezione = st.sidebar.radio("Vai alla pagina:", ["1. Titoli e Grafici", "2. Notizie di Mercato", "3. Simulatore Investimenti"])
+sezione = st.sidebar.radio("Vai alla pagina:", ["1. Titoli e Grafici", "2. Notizie di Mercato", "3. Simulatore Investimenti", "4. Bilanciamento Portafoglio"])
 
 # ====================================================
 # PAGINA 1: TITOLI FINANZIARI E GRAFICI
@@ -169,3 +169,95 @@ elif sezione == "3. Simulatore Investimenti":
         height=450
     )
     st.plotly_chart(fig_crescita, use_container_width=True)
+    
+# ====================================================
+# PAGINA 4: ASSET ALLOCATION E RIBILANCIAMENTO
+# ====================================================
+elif sezione == "4. Bilanciamento Portafoglio":
+    st.title("⚖️ Asset Allocation & Ribilanciamento Strategico")
+    st.write("Imposta i tuoi obiettivi di portafoglio e calcola esattamente come ribilanciare il capitale attuale.")
+    
+    # 1. Configurazione delle percentuali obiettivo (Target Allocation)
+    st.subheader("1. Imposta la tua Asset Allocation Obiettivo (%)")
+    col_t1, col_t2, col_t3, col_t4 = st.columns(4)
+    
+    with col_t1:
+        target_azioni = st.number_input("Azioni / ETF (%):", min_value=0.0, max_value=100.0, value=60.0, step=5.0)
+    with col_t2:
+        target_obbligazioni = st.number_input("Obbligazioni (%):", min_value=0.0, max_value=100.0, value=20.0, step=5.0)
+    with col_t3:
+        target_oro = st.number_input("Oro / Beni Rifugio (%):", min_value=0.0, max_value=100.0, value=10.0, step=5.0)
+    with col_t4:
+        target_crypto = st.number_input("Crypto / Liquidità (%):", min_value=0.0, max_value=100.0, value=10.0, step=5.0)
+        
+    totale_target = target_azioni + target_obbligazioni + target_oro + target_crypto
+    
+    # Controllo di sicurezza matematico
+    if totale_target != 100.0:
+        st.warning(f"⚠️ La somma delle percentuali obiettivo deve fare esattamente 100%. Attualmente è: {totale_target}%")
+    else:
+        st.success("✅ Asset Allocation impostata correttamente (Totale 100%).")
+        
+        # 2. Inserimento del valore attuale del portafoglio
+        st.markdown("---")
+        st.subheader("2. Inserisci il Valore Attuale del tuo Portafoglio (€)")
+        
+        col_v1, col_v2, col_v3, col_v4 = st.columns(4)
+        with col_v1:
+            valore_azioni = st.number_input("Valore Attuale Azioni (€):", min_value=0.0, value=5500.0, step=100.0)
+        with col_v2:
+            valore_obbligazioni = st.number_input("Valore Attuale Obbligazioni (€):", min_value=0.0, value=2500.0, step=100.0)
+        with col_v3:
+            valore_oro = st.number_input("Valore Attuale Oro (€):", min_value=0.0, value=800.0, step=100.0)
+        with col_v4:
+            valore_crypto = st.number_input("Valore Attuale Crypto (€):", min_value=0.0, value=1200.0, step=100.0)
+            
+        capitale_totale = valore_azioni + valore_obbligazioni + valore_oro + valore_crypto
+        st.metric("Valore Totale Portafoglio", f"€{capitale_totale:,.2f}")
+        
+        # 3. Logica e Calcoli di Ribilanciamento
+        valori_attuali = [valore_azioni, valore_obbligazioni, valore_oro, valore_crypto]
+        targets = [target_azioni, target_obbligazioni, target_oro, target_crypto]
+        categorie = ["Azioni/ETF", "Obbligazioni", "Oro", "Crypto/Liquidità"]
+        
+        azioni_richieste = []
+        
+        for val_attuale, target, cat in zip(valori_attuali, targets, categorie):
+            valore_teorico_obiettivo = capitale_totale * (target / 100)
+            differenza = valore_teorico_obiettivo - val_attuale
+            azioni_richieste.append({
+                "Categoria": cat,
+                "Valore Attuale": val_attuale,
+                "Percentuale Attuale": (val_attuale / capitale_totale) * 100 if capitale_totale > 0 else 0,
+                "Percentuale Target": target,
+                "Ribilanciamento": differenza
+            })
+            
+        df_ribilanciamento = pd.DataFrame(azioni_richieste)
+        
+        # 4. Visualizzazione Grafica (Confronto con Grafico a Torta / Donut Chart)
+        st.markdown("---")
+        col_g1, col_g2 = st.columns(2)
+        
+        with col_g1:
+            fig_attuale = go.Figure(data=[go.Pie(labels=df_ribilanciamento["Categoria"], values=df_ribilanciamento["Valore Attuale"], hole=.4)])
+            fig_attuale.update_layout(title_text="Composizione Attuale del Portafoglio", template="plotly_dark", height=350)
+            st.plotly_chart(fig_attuale, use_container_width=True)
+            
+        with col_g2:
+            fig_target = go.Figure(data=[go.Pie(labels=df_ribilanciamento["Categoria"], values=df_ribilanciamento["Percentuale Target"], hole=.4)])
+            fig_target.update_layout(title_text="Composizione Obiettivo (Target)", template="plotly_dark", height=350)
+            st.plotly_chart(fig_target, use_container_width=True)
+            
+        # 5. Tabella dei Risultati Operativi con indicazioni Compra/Vendi
+        st.subheader("📋 Azioni Correttive per il Ribilanciamento")
+        st.write("Segui queste indicazioni per riallineare il tuo portafoglio agli obiettivi strategici:")
+        
+        for index, row in df_ribilanciamento.iterrows():
+            operazione = row["Ribilanciamento"]
+            if operazione > 0:
+                st.info(f"➕ **{row['Categoria']}**: Devi **COMPRARE** €{operazione:,.2f} per raggiungere il target del {row['PercentualeTarget']}%")
+            elif operazione < 0:
+                st.warning(f"➖ **{row['Categoria']}**: Devi **VENDERE** €{abs(operazione):,.2f} per scendere al target del {row['PercentualeTarget']}%")
+            else:
+                st.success(f"🎯 **{row['Categoria']}**: Perfettamente bilanciato al {row['PercentualeTarget']}%")
