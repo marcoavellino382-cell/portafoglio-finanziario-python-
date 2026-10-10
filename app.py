@@ -63,43 +63,47 @@ if sezione == "1. Titoli e Grafici":
 # ====================================================
 elif sezione == "2. Notizie di Mercato":
     st.title("📰 Notizie e Aggiornamenti Real-Time")
-    st.write("Rimani aggiornato sulle ultime novità societarie e macroeconomiche.")
+    st.write("Rimani aggiornato sulle ultime novità societarie e macroeconomiche globali.")
     
-    ticker_news = st.text_input("Filtra le notizie per Ticker aziendale:", "AAPL").upper()
+    # Importiamo due strumenti nativi di Python per leggere i feed web senza blocchi
+    import urllib.request
+    import xml.etree.ElementTree as ET
     
-    if ticker_news:
-        with st.spinner("Ricerca notizie..."):
-            try:
-                dati_titolo = yf.Ticker(ticker_news)
-                lista_notizie = dati_titolo.news
-                
-                # Se yfinance restituisce notizie valide, mostriamo quelle del ticker
-                if lista_notizie and len(lista_notizie) > 0:
-                    st.subheader(f"Ultime notizie rilevanti per {ticker_news}")
-                    for news in lista_notizie[:5]:
-                        with st.expander(news['title']):
-                            st.write(f"**Fonte:** {news.get('publisher', 'N/D')}")
-                            data_pubb = pd.to_datetime(news.get('providerPublishTime', 0), unit='s')
-                            st.write(f"**Data di pubblicazione:** {data_pubb.strftime('%d/%m/%Y %H:%M')}")
-                            st.write(f"[Clicca qui per leggere l'articolo completo]({news['link']})")
-                
-                # FALLBACK: Se yfinance fallisce o è bloccato sul cloud, carichiamo le notizie generali di mercato
-                else:
-                    st.warning(f"⚠️ Limitazione temporanea sui server per il ticker {ticker_news}. Mostro le ultime notizie Generali di Mercato:")
-                    dati_generali = yf.Ticker("SPY") # Usiamo l'indice S&P 500 come paracadute generale
-                    news_generali = dati_generali.news
+    with st.spinner("Lettura del feed notizie in corso..."):
+        try:
+            # URL del feed RSS ufficiale delle Top Stories di Yahoo Finance
+            url_rss = "https://finance.yahoo.com/news/rssindex"
+            
+            # Simuliamo una richiesta da un browser normale per evitare blocchi IP sul Cloud
+            req = urllib.request.Request(
+                url_rss, 
+                headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'}
+            )
+            
+            with urllib.request.urlopen(req) as response:
+                dati_xml = response.read()
+            
+            # Analizziamo l'XML del feed RSS
+            root = ET.fromstring(dati_xml)
+            articoli = root.findall('.//item')
+            
+            if articoli:
+                st.subheader("🔥 Ultime notizie dal mercato azionario globale")
+                # Mostriamo le prime 5 notizie del feed principale
+                for item in articoli[:5]:
+                    titolo = item.find('title').text
+                    link = item.find('link').text
+                    data_pubb = item.find('pubDate').text if item.find('pubDate') is not None else "Data non disponibile"
                     
-                    if news_generali:
-                        for news in news_generali[:5]:
-                            with st.expander(news['title']):
-                                st.write(f"**Fonte:** {news.get('publisher', 'N/D')}")
-                                data_pubb = pd.to_datetime(news.get('providerPublishTime', 0), unit='s')
-                                st.write(f"**Data di pubblicazione:** {data_pubb.strftime('%d/%m/%Y %H:%M')}")
-                                st.write(f"[Clicca qui per leggere l'articolo completo]({news['link']})")
-                    else:
-                        st.info("Nessuna notizia disponibile al momento. Riprova tra pochi minuti.")
-            except Exception as e:
-                st.error("Impossibile recuperare le notizie al momento a causa di restrizioni del server.")
+                    with st.expander(titolo):
+                        st.write(f"**Data:** {data_pubb}")
+                        st.write(f"[Clicca qui per leggere l'articolo completo]({link})")
+            else:
+                st.info("Nessuna notizia disponibile nel feed in questo momento. Riprova tra poco.")
+                
+        except Exception as e:
+            # Paracadute estremo se anche il feed principale ha problemi di rete
+            st.error("Servizio notizie momentaneamente non disponibile a causa di restrizioni del server. I grafici e il simulatore rimangono attivi al 100%.")
 
 # ====================================================
 # PAGINA 3: VALUTAZIONE INVESTIMENTO (FATTIBILITÀ)
