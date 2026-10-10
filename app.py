@@ -63,46 +63,51 @@ if sezione == "1. Titoli e Grafici":
 # ====================================================
 elif sezione == "2. Notizie di Mercato":
     st.title("📰 Notizie e Aggiornamenti Real-Time")
-    st.write("Rimani aggiornato sulle ultime novità societarie e macroeconomiche globali.")
+    st.write("Rimani aggiornato sulle ultime novità macroeconomiche e finanziarie globali.")
     
     import urllib.request
-    import json
+    import xml.etree.ElementTree as ET
     
-    # MODIFICA QUI: Incolla all'interno delle virgolette la chiave che hai preso da Finnhub
-    API_KEY = "db56gepr01qv1n8sul6gdb56gepr01qv1n8sul70"
-    
-    with st.spinner("Scaricamento ultime notizie di mercato..."):
+    with st.spinner("Scaricamento ultime notizie finanziarie..."):
         try:
-            # URL per le notizie di mercato generali (categoria 'general')
-            url = f"https://finnhub.io{API_KEY}"
+            # Feed RSS ufficiale di Google News per la sezione Economia/Finanza in Italia
+            url_feed = "https://google.com"
             
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            # Mascheriamo la richiesta simulando un browser desktop standard
+            req = urllib.request.Request(
+                url_feed, 
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+            )
+            
             with urllib.request.urlopen(req) as response:
-                dati_json = json.loads(response.read().decode('utf-8'))
+                xml_data = response.read()
+                
+            # Parsing dell'XML ricevuto dal feed
+            root = ET.fromstring(xml_data)
+            articoli = root.findall('.//item')
             
-            if dati_json and len(dati_json) > 0:
-                st.subheader("🔥 Ultime notizie dal mercato azionario globale")
-                # Mostriamo le prime 5 notizie
-                for news in dati_json[:5]:
-                    titolo = news.get('headline', 'Nessun titolo')
-                    sommario = news.get('summary', '')
-                    link = news.get('url', '#')
-                    fonte = news.get('source', 'Finnhub')
-                    
-                    # Converte il timestamp Unix in data leggibile
-                    data_unix = news.get('datetime', 0)
-                    data_pubb = pd.to_datetime(data_unix, unit='s').strftime('%d/%m/%Y %H:%M')
+            if articoli:
+                st.subheader("🔥 Ultime notizie dal mondo economico e mercati")
+                # Mostriamo i primi 6 articoli freschi di giornata
+                for item in articoli[:6]:
+                    titolo = item.find('title').text
+                    link = item.find('link').text
+                    data_pubb = item.find('pubDate').text if item.find('pubDate') is not None else "Ora recente"
+                    fonte = item.find('source').text if item.find('source') is not None else "Google News"
                     
                     with st.expander(titolo):
-                        st.write(f"**Fonte:** {fonte} | **Data:** {data_pubb}")
-                        if sommario:
-                            st.write(f"*{sommario}*")
-                        st.write(f"[Clicca qui per leggere l'articolo completo]({link})")
+                        st.write(f"**Fonte:** {fonte} | **Pubblicato il:** {data_pubb}")
+                        st.write(f"[Leggi l'articolo completo direttamente alla fonte]({link})")
             else:
-                st.info("Nessuna notizia disponibile in questo momento.")
+                st.info("Nessun aggiornamento disponibile al momento. Riprova tra pochi minuti.")
                 
         except Exception as e:
-            st.error("Servizio notizie momentaneamente non disponibile. I grafici e il simulatore rimangono attivi al 100%.")
+            # Se il cloud fa ostruzione totale, mostriamo un aggregatore statico elegante
+            st.info("📌 **Canali di Aggiornamento Consigliati:**")
+            st.write("Per visualizzare i dettagli in tempo reale senza restrizioni di rete del server cloud, puoi consultare direttamente i canali istituzionali:")
+            st.markdown("- [Il Sole 24 Ore - Finanza ed Economia](https://ilsole24ore.com)")
+            st.markdown("- [Yahoo Finance Italia](https://yahoo.com)")
+            st.markdown("- [Milano Finanza](https://milanofinanza.it)")
 
 # ====================================================
 # PAGINA 3: VALUTAZIONE INVESTIMENTO (FATTIBILITÀ)
