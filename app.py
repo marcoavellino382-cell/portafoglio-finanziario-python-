@@ -18,6 +18,12 @@ st.sidebar.image("logo.png", width=150)
 st.sidebar.title("Portfolio Manager")
 sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio"])
 
+# Elementi grafici di chiusura per la Sidebar
+st.sidebar.markdown("---")
+st.sidebar.caption("🤖 **Stato Sistema:** Operativo (Cloud)")
+st.sidebar.caption("📦 **Versione:** v1.2.0 (Stable)")
+st.sidebar.markdown("👨‍💻 **Sviluppato da:** [Marco Avellino](www.linkedin.com/in/marco-avellino-1a0918411)")
+
 # ====================================================
 # PAGINA 1: TITOLI FINANZIARI E GRAFICI
 # ====================================================
