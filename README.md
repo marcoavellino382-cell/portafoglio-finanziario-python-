@@ -2,7 +2,7 @@
 
 An interactive, cloud-native web application built with Python to analyze market assets, track global economic updates, and simulate investment growth.
 
-🚀 **Live Demo:** [Incolla Qui Il Tuo Link di Streamlit]
+
 
 ## 🛠️ Tech Stack & Features
 - **Frontend & Deployment:** Streamlit Cloud
