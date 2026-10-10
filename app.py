@@ -28,7 +28,7 @@ if sezione == "1. Titoli e Grafici":
     ticker = st.text_input("Inserisci il codice Ticker del titolo (es. AAPL, TSLA, BTC-USD):", "AAPL").upper()
     periodo = st.selectbox("Seleziona l'orizzonte temporale del grafico:", ["1mo", "3mo", "6mo", "1y", "5y"], index=3)
     
-    if ticker:
+ if ticker:
         with st.spinner("Scaricamento dati in corso..."):
             try:
                 # Scarica i dati storici da Yahoo Finance
