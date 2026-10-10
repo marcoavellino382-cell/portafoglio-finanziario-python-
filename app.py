@@ -16,7 +16,7 @@ st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
-sezione = st.sidebar.radio("Vai alla pagina:", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio"])
+sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio"])
 
 # ====================================================
 # PAGINA 1: TITOLI FINANZIARI E GRAFICI
