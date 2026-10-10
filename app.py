@@ -4,11 +4,17 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
-# 1. Configurazione della pagina (Titolo della scheda del browser)
-st.set_page_config(page_title="Il mio Portafoglio Finanziario", layout="wide")
+# 1. Configurazione della pagina (Titolo e Favicon nella scheda del browser)
+st.set_page_config(
+    page_title="Portfolio Manager", 
+    page_icon="logo.png",  
+    layout="wide"
+)
+# Aggiunge il logo in alto a sinistra sopra il menu laterale di navigazione
+st.logo("logo.png")
 
 # 2. Creazione del Menu Laterale di navigazione
-st.sidebar.title("Navigazione Portafoglio")
+st.sidebar.title("Portfolio Manager")
 sezione = st.sidebar.radio("Vai alla pagina:", ["1. Titoli e Grafici", "2. Notizie di Mercato", "3. Simulatore Investimenti"])
 
 # ====================================================
