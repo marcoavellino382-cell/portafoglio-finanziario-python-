@@ -22,7 +22,7 @@ sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie 
 st.sidebar.markdown("---")
 st.sidebar.caption("🤖 **Stato Sistema:** Operativo (Cloud)")
 st.sidebar.caption("📦 **Versione:** v1.2.0 (Stable)")
-st.sidebar.markdown("👨‍💻 **Sviluppato da:** [Marco Avellino](https://linkedin.com/marco-avellino-1a0918411)")
+st.sidebar.markdown("👨‍💻 **Sviluppato da:** [Marco Avellino](https://linkedin.com/in/marco-avellino-1a0918411)")
 
 # ====================================================
 # PAGINA 1: TITOLI FINANZIARI E GRAFICI
