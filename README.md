@@ -2,8 +2,7 @@
 
 An interactive, cloud-native web application built with Python to analyze market assets, track global economic updates, simulate investment growth, and manage portfolio risk.
 
-🚀 **Live Demo:** [[)](https://ecpuvtezmyzcfy5rwcgzxw.streamlit.app/)
-💻 **Author & Developer:** [Marco Avellino](https//linkedin.com/in/marco-avellino-1a0918411)
+💻 **Author & Developer:** Marco Avellino
 
 ---
 
