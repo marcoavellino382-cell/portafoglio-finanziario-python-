@@ -16,7 +16,7 @@ st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
-sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio", "Simulatore Fiscale"])
+sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio", "Simulatore Fiscale", "Ottimizzazione & Rischio"])
 
 # Elementi grafici di chiusura per la Sidebar
 st.sidebar.markdown("---")
@@ -335,3 +335,77 @@ elif sezione == "Simulatore Fiscale":
         st.plotly_chart(fig_fiscale, use_container_width=True)
     else:
         st.info("Inserisci una plusvalenza maggiore di 0 per visualizzare l'analisi grafica.")
+
+# ====================================================
+# PAGINA 6: OTTIMIZZAZIONE E RISCHIO QUANTITATIVO
+# ====================================================
+elif sezione == "Ottimizzazione & Rischio":
+    st.title("⚖️ Analisi del Rischio & Efficienza (Quant)")
+    st.write("Calcola la volatilità statistica e l'Indice di Sharpe dei tuoi titoli preferiti basandoti sui dati storici reali.")
+    
+    # 1. Input del Ticker specifico da analizzare sul rischio
+    col_r1, col_r2 = st.columns(2)
+    with col_r1:
+        ticker_rischio = st.text_input("Inserisci il Ticker per l'analisi statistica (es. AAPL, BTC-USD):", "TSLA").upper()
+    with col_r2:
+        risk_free_rate = st.number_input("Tasso d'interesse privo di rischio (Risk-Free Rate %) - es. BTP/Bund:", min_value=0.0, value=3.0, step=0.1)
+        
+    if ticker_rischio:
+        with st.spinner("Elaborazione algoritmi statistici..."):
+            try:
+                # Estraiamo l'ultimo anno di dati giornalieri (storico ottimale per l'analisi del rischio)
+                dati_r = yf.Ticker(ticker_rischio)
+                df_r = dati_r.history(period="1y")
+                
+                if not df_r.empty and len(df_r) > 10:
+                    # Calcolo dei rendimenti giornalieri con Pandas
+                    df_r['Rendimenti_Giornalieri'] = df_r['Close'].pct_change()
+                    
+                    # 1. Calcolo del Rendimento Annuo Storico
+                    rendimento_medio_giornaliero = df_r['Rendimenti_Giornalieri'].mean()
+                    rendimento_annuo_storico = (rendimento_medio_giornaliero * 252) * 100 # 252 sono i giorni di borsa aperta in un anno
+                    
+                    # 2. Calcolo della Volatilità Annua (Deviazione Standard dei rendimenti)
+                    deviazione_standard_giornaliera = df_r['Rendimenti_Giornalieri'].std()
+                    volatilia_annua = (deviazione_standard_giornaliera * np.sqrt(252)) * 100
+                    
+                    # 3. Calcolo dell'Indice di Sharpe
+                    eccesso_rendimento = rendimento_annuo_storico - risk_free_rate
+                    indice_sharpe = eccesso_rendimento / volatilia_annua if volatilia_annua > 0 else 0
+                    
+                    # Visualizzazione Metriche Quantitative
+                    st.markdown("---")
+                    st.subheader(f"📊 Metriche di Rischio/Rendimento per {ticker_rischio} (Ultimi 12 Mesi)")
+                    
+                    kpi_r1, kpi_r2, kpi_r3 = st.columns(3)
+                    kpi_r1.metric("Rendimento Annuo Storico", f"{rendimento_annuo_storico:.2f}%")
+                    kpi_r2.metric("Volatilità Annua (Rischio)", f"{volatilia_annua:.2f}%")
+                    kpi_r3.metric("Indice di Sharpe", f"{indice_sharpe:.2f}")
+                    
+                    # Spiegazione qualitativa automatica dell'Indice di Sharpe
+                    st.markdown("---")
+                    st.subheader("💡 Valutazione dell'Efficienza dell'Asset")
+                    if indice_sharpe > 2.0:
+                        st.success(f"🚀 **Sharpe Eccezionale ({indice_sharpe:.2f})**: Il titolo offre un rendimento stratosferico rispetto al rischio corso. Ottima efficienza.")
+                    elif indice_sharpe >= 1.0:
+                        st.success(f"✅ **Sharpe Buono ({indice_sharpe:.2f})**: Il rendimento compensa adeguatamente la volatilità del titolo. L'investimento è efficiente.")
+                    elif indice_sharpe >= 0.0:
+                        st.info(f"⚠️ **Sharpe Mediocre ({indice_sharpe:.2f})**: Il titolo guadagna, ma la volatilità è molto alta. L'efficienza è limitata.")
+                    else:
+                        st.error(f"🚨 **Sharpe Negativo ({indice_sharpe:.2f})**: Il titolo ha performance peggiori del tasso privo di rischio. Strategia inefficiente nell'ultimo anno.")
+                        
+                    # Grafico della distribuzione dei rendimenti per visualizzare la volatilità
+                    fig_dist = go.Figure()
+                    fig_dist.add_trace(go.Histogram(x=df_r['Rendimenti_Giornalieri'] * 100, nbinsx=50, marker_color='#00FFCC', opacity=0.75))
+                    fig_dist.update_layout(
+                        title=f"Distribuzione Statistica dei Rendimenti Giornalieri per {ticker_rischio} (%)",
+                        xaxis_title="Variazione Giornaliera (%)",
+                        yaxis_title="Frequenza (Giorni)",
+                        template="plotly_dark",
+                        height=400
+                    )
+                    st.plotly_chart(fig_dist, use_container_width=True)
+                else:
+                    st.error("Dati storici insufficienti per l'analisi quantitativa del rischio.")
+            except Exception as e:
+                st.error("Impossibile completare l'analisi quantitativa a causa di un'indisponibilità temporanea dei dati.")
