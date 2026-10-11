@@ -16,7 +16,7 @@ st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
-sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio"])
+sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio", "Simulatore Fiscale"])
 
 # Elementi grafici di chiusura per la Sidebar
 st.sidebar.markdown("---")
@@ -267,3 +267,71 @@ elif sezione == "Bilanciamento Portafoglio":
                 st.warning(f"➖ **{row['Categoria']}**: Devi **VENDERE** €{abs(operazione):,.2f} per scendere al target del {row['Percentuale Target']}%")
             else:
                 st.success(f"🎯 **{row['Categoria']}**: Perfettamente bilanciato al {row['Percentuale Target']}%")
+
+# ====================================================
+# PAGINA 5: SIMULATORE FISCALE ITALIANO
+# ====================================================
+elif sezione == "Simulatore Fiscale":
+    st.title("🧮 Simulatore Fiscale & Tassazione Plusvalenze")
+    st.write("Calcola l'impatto del fisco italiano sui tuoi investimenti finanziari in base alla tipologia di asset.")
+    
+    # 1. Input dell'utente
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        regime = st.selectbox("Seleziona il Regime Fiscale:", ["Amministrato / Gestito (Ritenuta alla fonte)", "Dichiarativo (Modello Redditi)"])
+        tipo_asset = st.selectbox("Tipologia di Asset Finanziario:", [
+            "Azioni, ETF Azionari, Criptovalute", 
+            "Titoli di Stato Italiani (BTP) / White List",
+            "Portafoglio Misto"
+        ])
+    with col_f2:
+        plusvalenza_lorda = st.number_input("Plusvalenza Lorda Generata (Guadagno in €):", min_value=0.0, value=2000.0, step=100.0)
+        minusvalenze_prec = st.number_input("Minusvalenze pregresse da compensare (€):", min_value=0.0, value=0.0, step=50.0)
+
+    # 2. Logica di calcolo delle aliquote e tassazione
+    base_imponibile = max(0.0, plusvalenza_lorda - minusvalenze_prec)
+    
+    if tipo_asset == "Azioni, ETF Azionari, Criptovalute":
+        aliquota = 26.0
+        imposta = base_imponibile * (aliquota / 100)
+    elif tipo_asset == "Titoli di Stato Italiani (BTP) / White List":
+        aliquota = 12.5
+        imposta = base_imponibile * (aliquota / 100)
+    else:
+        # Portafoglio misto convenzionale bilanciato 50/50 come esempio didattico
+        aliquota = 19.25  # Media ponderata tra 26% e 12.5%
+        imposta = base_imponibile * (aliquota / 100)
+        st.info("ℹ️ Per il Portafoglio Misto viene applicata un'aliquota media ponderata stimata al 19.25% (Es. 50% Azioni e 50% Titoli di Stato).")
+
+    guadagno_netto = plusvalenza_lorda - imposta
+
+    # 3. Visualizzazione Risultati (KPI)
+    st.markdown("---")
+    st.subheader("📊 Sintesi Fiscale del Guadagno")
+    
+    res_f1, res_f2, res_f3 = st.columns(3)
+    res_f1.metric("Capitale Netto Reale", f"€{guadagno_netto:,.2f}")
+    res_f2.metric("Imposta Sostitutiva Dovuta", f"€{imposta:,.2f}", delta=f"-{aliquota}%" if base_imponibile > 0 else "0%", delta_color="inverse")
+    res_f3.metric("Base Imponibile", f"€{base_imponibile:,.2f}")
+
+    # Spiegazione delle minusvalenze se utilizzate
+    if minusvalenze_prec > 0:
+        credito_fiscale_usato = min(plusvalenza_lorda, minusvalenze_prec) * (aliquota / 100)
+        st.success(f"🎉 Grazie alla compensazione delle minusvalenze hai risparmiato €{credito_fiscale_usato:,.2f} di tasse!")
+
+    # 4. Grafico a Torta della ripartizione del guadagno con Plotly
+    st.markdown("---")
+    if plusvalenza_lorda > 0:
+        labels_f = ['Guadagno Netto (Resta a te)', 'Fisco (Imposte trattenute)']
+        values_f = [guadagno_netto, imposta]
+        colors_f = ['#00FFCC', '#FF4B4B']
+        
+        fig_fiscale = go.Figure(data=[go.Pie(labels=labels_f, values=values_f, hole=.4, marker=dict(colors=colors_f))])
+        fig_fiscale.update_layout(
+            title_text="Ripartizione della Plusvalenza (Lordo vs Netto)", 
+            template="plotly_dark", 
+            height=400
+        )
+        st.plotly_chart(fig_fiscale, use_container_width=True)
+    else:
+        st.info("Inserisci una plusvalenza maggiore di 0 per visualizzare l'analisi grafica.")
