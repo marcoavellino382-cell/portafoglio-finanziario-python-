@@ -28,7 +28,7 @@ st.sidebar.markdown("👨‍💻 **Sviluppato da:** [Marco Avellino](https://lin
 # PAGINA 1: TITOLI FINANZIARI E GRAFICI
 # ====================================================
 if sezione == "Titoli e Grafici":
-    st.title("📊 Analisi Titoli e Grafici Interattivi")
+    st.title("Analisi Titoli e Grafici Interattivi")
     st.write("Inserisci il codice di un titolo azionario o crypto per visualizzare i dati in tempo reale.")
     
     ticker = st.text_input("Inserisci il codice Ticker del titolo (es. AAPL, TSLA, BTC-USD):", "AAPL").upper()
@@ -79,7 +79,7 @@ if sezione == "Titoli e Grafici":
 # PAGINA 2: NOTIZIE E AGGIORNAMENTI
 # ====================================================
 elif sezione == "Notizie di Mercato":
-    st.title("📰 Notizie e Aggiornamenti Real-Time")
+    st.title("Notizie e Aggiornamenti Real-Time")
     st.write("Rimani aggiornato sulle ultime novità macroeconomiche e finanziarie globali.")
     
     import urllib.request
@@ -124,7 +124,7 @@ elif sezione == "Notizie di Mercato":
 # PAGINA 3: VALUTAZIONE INVESTIMENTO (FATTIBILITÀ)
 # ====================================================
 elif sezione == "Simulatore Investimenti":
-    st.title("💰 Valutazione e Fattibilità dell'Investimento")
+    st.title("Valutazione e Fattibilità dell'Investimento")
     st.write("Calcola l'impatto e il valore creato nel tempo grazie alla forza dell'interesse composto.")
     
     c_input1, c_input2 = st.columns(2)
@@ -180,7 +180,7 @@ elif sezione == "Simulatore Investimenti":
 # PAGINA 4: ASSET ALLOCATION E RIBILANCIAMENTO
 # ====================================================
 elif sezione == "Bilanciamento Portafoglio":
-    st.title("⚖️ Asset Allocation & Ribilanciamento Strategico")
+    st.title("Asset Allocation & Ribilanciamento Strategico")
     st.write("Imposta i tuoi obiettivi di portafoglio e calcola esattamente come ribilanciare il capitale attuale.")
     
     # 1. Configurazione delle percentuali obiettivo (Target Allocation)
@@ -272,7 +272,7 @@ elif sezione == "Bilanciamento Portafoglio":
 # PAGINA 5: SIMULATORE FISCALE ITALIANO
 # ====================================================
 elif sezione == "Simulatore Fiscale":
-    st.title("🧮 Simulatore Fiscale & Tassazione Plusvalenze")
+    st.title("Simulatore Fiscale & Tassazione Plusvalenze")
     st.write("Calcola l'impatto del fisco italiano sui tuoi investimenti finanziari in base alla tipologia di asset.")
     
     # 1. Input dell'utente
@@ -340,7 +340,7 @@ elif sezione == "Simulatore Fiscale":
 # PAGINA 6: OTTIMIZZAZIONE E RISCHIO QUANTITATIVO
 # ====================================================
 elif sezione == "Ottimizzazione & Rischio":
-    st.title("⚖️ Analisi del Rischio & Efficienza (Quant)")
+    st.title("Analisi del Rischio & Efficienza (Quant)")
     st.write("Calcola la volatilità statistica e l'Indice di Sharpe dei tuoi titoli preferiti basandoti sui dati storici reali.")
     
     # 1. Input del Ticker specifico da analizzare sul rischio
