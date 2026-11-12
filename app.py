@@ -414,6 +414,7 @@ elif sezione == "Ottimizzazione & Rischio":
 # ====================================================# 
 # PAGINA 7: TRADING 
 # ====================================================
+
 elif sezione == "Trading":
     st.title("Gestione Trading")
     FILE_DATI = "trades.csv"
