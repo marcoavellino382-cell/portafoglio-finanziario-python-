@@ -411,8 +411,9 @@ elif sezione == "Ottimizzazione & Rischio":
             except Exception as e:
                 st.error("Impossibile completare l'analisi quantitativa a causa di un'indisponibilità temporanea dei dati.")
 
-
+# ====================================================# 
 # PAGINA 7: TRADING 
+# ====================================================
 elif sezione == "Trading":
     st.title("Gestione Trading")
     FILE_DATI = "trades.csv"
