@@ -17,7 +17,7 @@ st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
-sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio", "Simulatore Fiscale", "Ottimizzazione & Rischio", "Gestione Trading"])
+sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio", "Simulatore Fiscale", "Ottimizzazione & Rischio", "Trading"])
 
 # Elementi grafici di chiusura per la Sidebar
 st.sidebar.markdown("---")
