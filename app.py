@@ -436,7 +436,7 @@ elif sezione == "Trading":
     df_trade = carica_dati()
 
     t_rischio, t_registro, t_grafici = st.tabs(
-        ["🧮 Calcolatore Rischio", "📝 Registro Operazioni", "📊 Grafici Performance"]
+        ["Calcolatore Rischio", "Registro Operazioni", "Grafici Performance"]
     )
 
     with t_rischio:
