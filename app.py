@@ -3,6 +3,7 @@ import yfinance as yf
 import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
+import os 
 
 # 1. Configurazione della pagina (Titolo e Favicon nella scheda del browser)
 st.set_page_config(
@@ -16,7 +17,7 @@ st.sidebar.image("logo.png", width=150)
 
 # 2. Creazione del Menu Laterale di navigazione
 st.sidebar.title("Portfolio Manager")
-sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio", "Simulatore Fiscale", "Ottimizzazione & Rischio"])
+sezione = st.sidebar.radio("Menu di Navigazione", ["Titoli e Grafici", "Notizie di Mercato", "Simulatore Investimenti", "Bilanciamento Portafoglio", "Simulatore Fiscale", "Ottimizzazione & Rischio", "Trading"])
 
 # Elementi grafici di chiusura per la Sidebar
 st.sidebar.markdown("---")
@@ -409,3 +410,169 @@ elif sezione == "Ottimizzazione & Rischio":
                     st.error("Dati storici insufficienti per l'analisi quantitativa del rischio.")
             except Exception as e:
                 st.error("Impossibile completare l'analisi quantitativa a causa di un'indisponibilità temporanea dei dati.")
+
+
+# PAGINA 7: TRADING 
+elif sezione == "Trading":
+    st.title("Gestione Trading")
+    FILE_DATI = "trades.csv"
+
+    def carica_dati():
+        if os.path.exists(FILE_DATI):
+            return pd.read_csv(FILE_DATI)
+        colonne = [
+            "Data",
+            "Ticker",
+            "Direzione",
+            "Entrata",
+            "Uscita",
+            "Quantità",
+            "Commissioni",
+            "Profitto_Netto",
+            "ROI_%",
+        ]
+        return pd.DataFrame(columns=colonne)
+
+    df_trade = carica_dati()
+
+    t_rischio, t_registro, t_grafici = st.tabs(
+        ["🧮 Calcolatore Rischio", "📝 Registro Operazioni", "📊 Grafici Performance"]
+    )
+
+    with t_rischio:
+        st.subheader("Calcolo Position Sizing")
+        c1, c2 = st.columns(2)
+        with c1:
+            capitale = st.number_input(
+                "Capitale Trading (€)", min_value=100.0, value=5000.0, step=100.0
+            )
+            rischio_perc = st.slider(
+                "Rischio massimo per trade (%)", 0.5, 5.0, 1.0, step=0.1
+            )
+        with c2:
+            prezzo_in = st.number_input(
+                "Prezzo di Entrata (€)", min_value=0.01, value=100.0
+            )
+            stop_loss = st.number_input(
+                "Prezzo Stop Loss (€)", min_value=0.01, value=95.0
+            )
+
+        if prezzo_in != stop_loss:
+            rischio_euro = capitale * (rischio_perc / 100)
+            rischio_azione = abs(prezzo_in - stop_loss)
+            quantita_consigliata = rischio_euro / rischio_azione
+            controvalore = quantita_consigliata * prezzo_in
+            st.info(
+                f"**Rischio massimo:** {rischio_euro:.2f} € | **Quantità consigliata:** {quantita_consigliata:.2f} quote | **Controvalore posizione:** {controvalore:.2f} €"
+            )
+        else:
+            st.warning("Il prezzo di entrata e lo Stop Loss devono essere diversi.")
+
+    with t_registro:
+        st.subheader("Aggiungi Nuova Operazione")
+        with st.form("form_trade", clear_on_submit=True):
+            c1, c2, c3, c4 = st.columns(4)
+            data_op = c1.date_input("Data")
+            ticker_trade = c2.text_input("Ticker (es. AAPL, BTC)").upper()
+            direzione = c3.selectbox("Direzione", ["Long", "Short"])
+            quantita = c4.number_input("Quantità", min_value=0.0001, value=1.0)
+
+            c5, c6, c7 = st.columns(3)
+            entrata = c5.number_input("Prezzo Entrata (€)", min_value=0.0001, value=100.0)
+            uscita = c6.number_input("Prezzo Uscita (€)", min_value=0.0001, value=105.0)
+            comm = c7.number_input("Commissioni Totali (€)", min_value=0.0, value=1.0)
+
+            salva = st.form_submit_button("Registra Operazione")
+
+            if salva and ticker_trade:
+                profitto_lordo = (
+                    (uscita - entrata) * quantita
+                    if direzione == "Long"
+                    else (entrata - uscita) * quantita
+                )
+                profitto_netto = profitto_lordo - comm
+                capitale_investito = entrata * quantita
+                roi = (
+                    (profitto_netto / capitale_investito) * 100
+                    if capitale_investito > 0
+                    else 0
+                )
+
+                nuovo_trade = pd.DataFrame(
+                    [
+                        {
+                            "Data": str(data_op),
+                            "Ticker": ticker_trade,
+                            "Direzione": direzione,
+                            "Entrata": entrata,
+                            "Uscita": uscita,
+                            "Quantità": quantita,
+                            "Commissioni": comm,
+                            "Profitto_Netto": round(profitto_netto, 2),
+                            "ROI_%": round(roi, 2),
+                        }
+                    ]
+                )
+
+                df_trade = pd.concat([df_trade, nuovo_trade], ignore_index=True)
+                df_trade.to_csv(FILE_DATI, index=False)
+                st.success(
+                    f"Operazione su {ticker_trade} salvata con ROI del {roi:.2f}%!"
+                )
+
+        st.subheader("Storico Operazioni")
+        if not df_trade.empty:
+            st.dataframe(df_trade, use_container_width=True)
+            csv_scaricabile = df_trade.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                "📥 Scarica Backup CSV",
+                csv_scaricabile,
+                "backup_trades.csv",
+                "text/csv",
+            )
+        else:
+            st.write("Nessuna operazione registrata.")
+
+    with t_grafici:
+        if len(df_trade) > 0:
+            df_trade["Profitto_Cumulativo"] = df_trade["Profitto_Netto"].cumsum()
+            col_g1, col_g2 = st.columns(2)
+
+            with col_g1:
+                fig_equity = go.Figure()
+                fig_equity.add_trace(
+                    go.Scatter(
+                        y=df_trade["Profitto_Cumulativo"],
+                        mode="lines+markers",
+                        name="Profitto Cumulativo",
+                        line=dict(color="#00CC96", width=3),
+                    )
+                )
+                fig_equity.update_layout(
+                    title="Equity Curve (Profitto Cumulativo €)",
+                    xaxis_title="Operazioni",
+                    yaxis_title="Profitto (€)",
+                )
+                st.plotly_chart(fig_equity, use_container_width=True)
+
+            with col_g2:
+                colori_barre = [
+                    "#00CC96" if val >= 0 else "#EF553B" for val in df_trade["ROI_%"]
+                ]
+                fig_roi = go.Figure()
+                fig_roi.add_trace(
+                    go.Bar(
+                        x=df_trade["Ticker"],
+                        y=df_trade["ROI_%"],
+                        marker_color=colori_barre,
+                        name="ROI %",
+                    )
+                )
+                fig_roi.update_layout(
+                    title="ROI % per Operazione",
+                    xaxis_title="Ticker",
+                    yaxis_title="ROI (%)",
+                )
+                st.plotly_chart(fig_roi, use_container_width=True)
+        else:
+            st.info("Registra almeno un'operazione per visualizzare i grafici.")
